@@ -2,11 +2,15 @@ class PostsController < ApplicationController
 
   def index
     @posts = Post.all
+    # render :template => "posts/index"
 
     # alternative responses to requests other than HTML
-    # respond_to do |format|
-    #   format.html # implicitly renders posts/index.html.erb
-    # end
+    respond_to do |format|
+      format.html
+      format.json do
+        render :json => @posts
+      end
+    end
   end
 
   def new
@@ -27,13 +31,23 @@ class PostsController < ApplicationController
     end
     redirect_to "/posts"
   end
+  
+  def destroy
+    if @post.user_id == session["user_id"]
+      @post.destroy
+      flash["notice"] = "Post deleted successfully."
+    else
+      flash["alert"] = "You are not authorized to delete this post."
+    end
+    redirect_to "/posts"
+  end
 
-  # before_action :allow_cors
-  # def allow_cors
-  #   response.headers['Access-Control-Allow-Origin'] = '*'
-  #   response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, PATCH, DELETE, OPTIONS'
-  #   response.headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, Token, Auth-Token, Email, X-User-Token, X-User-Email'
-  #   response.headers['Access-Control-Max-Age'] = '1728000'
-  # end
+  before_action :allow_cors
+  def allow_cors
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, PATCH, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, Token, Auth-Token, Email, X-User-Token, X-User-Email'
+    response.headers['Access-Control-Max-Age'] = '1728000'
+  end
 
 end
